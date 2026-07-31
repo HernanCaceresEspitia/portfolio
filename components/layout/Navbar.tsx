@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useT } from "@/components/providers/LanguageProvider";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
@@ -19,11 +19,10 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Navegación por código: cierra el menú y desplaza a la sección.
-  // Evita que el salto nativo del ancla se cancele en móvil al cerrar el menú.
-  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    setMenuOpen(false);
+  // Guarda el destino pendiente mientras el menú móvil termina de cerrarse.
+  const pendingHref = useRef<string | null>(null);
+
+  const scrollToSection = (href: string) => {
     const el = document.querySelector(href);
     if (el) {
       el.scrollIntoView({
@@ -31,6 +30,19 @@ export function Navbar() {
         block: "start",
       });
       history.replaceState(null, "", href);
+    }
+  };
+
+  // Navegación por código. Si el menú móvil está abierto, primero lo cerramos
+  // y desplazamos SOLO cuando la animación de cierre termina (onExitComplete);
+  // así el DOM ya no muta mientras el navegador se desplaza (clave en móvil).
+  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    if (menuOpen) {
+      pendingHref.current = href;
+      setMenuOpen(false);
+    } else {
+      scrollToSection(href);
     }
   };
 
@@ -126,7 +138,14 @@ export function Navbar() {
       </nav>
 
       {/* Menú móvil desplegable */}
-      <AnimatePresence>
+      <AnimatePresence
+        onExitComplete={() => {
+          if (pendingHref.current) {
+            scrollToSection(pendingHref.current);
+            pendingHref.current = null;
+          }
+        }}
+      >
         {menuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
