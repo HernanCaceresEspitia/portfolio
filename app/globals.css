@@ -7,11 +7,11 @@
 
 @theme {
   /* -- Colores base -- */
-  --color-ink: #0a0c16;        /* fondo principal (tinta) */
-  --color-panel: #12162a;      /* superficies elevadas */
-  --color-panel-2: #1a1f38;    /* bordes / raised */
-  --color-text: #eceef7;       /* texto principal */
-  --color-muted: #9aa0b8;      /* texto secundario */
+  --color-ink: #0a0c16; /* fondo principal (tinta) */
+  --color-panel: #12162a; /* superficies elevadas */
+  --color-panel-2: #1a1f38; /* bordes / raised */
+  --color-text: #eceef7; /* texto principal */
+  --color-muted: #9aa0b8; /* texto secundario */
 
   /* -- Acentos (el gradiente de "flujo") -- */
   --color-violet: #8b5cf6;
@@ -26,7 +26,12 @@
 }
 
 :root {
-  --gradient-flow: linear-gradient(120deg, #8b5cf6 0%, #3b82f6 50%, #22d3ee 100%);
+  --gradient-flow: linear-gradient(
+    120deg,
+    #8b5cf6 0%,
+    #3b82f6 50%,
+    #22d3ee 100%
+  );
   --gradient-accent: linear-gradient(120deg, #8b5cf6 0%, #ec4899 100%);
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.14);
@@ -88,7 +93,11 @@ body {
   height: 42rem;
   top: -12rem;
   left: -8rem;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.55), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(139, 92, 246, 0.55),
+    transparent 70%
+  );
 }
 .aurora::after {
   width: 38rem;
@@ -111,7 +120,9 @@ body {
   padding: 1px;
   border-radius: inherit;
   background: var(--gradient-flow);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -129,4 +140,9 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* Desplazamiento anclado: deja espacio para el navbar fijo al saltar a una sección */
+section[id] {
+  scroll-margin-top: 5rem;
 }

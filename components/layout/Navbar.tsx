@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useT } from "@/components/providers/LanguageProvider";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
@@ -18,6 +18,21 @@ export function Navbar() {
   const reduced = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Navegación por código: cierra el menú y desplaza a la sección.
+  // Evita que el salto nativo del ancla se cancele en móvil al cerrar el menú.
+  const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setMenuOpen(false);
+    const el = document.querySelector(href);
+    if (el) {
+      el.scrollIntoView({
+        behavior: reduced ? "auto" : "smooth",
+        block: "start",
+      });
+      history.replaceState(null, "", href);
+    }
+  };
 
   // Fondo desenfocado al hacer scroll.
   useEffect(() => {
@@ -43,7 +58,11 @@ export function Navbar() {
     >
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         {/* Marca / monograma */}
-        <a href="#top" className="flex items-center gap-3">
+        <a
+          href="#top"
+          onClick={(e) => handleNavClick(e, "#top")}
+          className="flex items-center gap-3"
+        >
           <span
             className="grid h-9 w-9 place-items-center rounded-lg text-sm font-bold"
             style={{
@@ -68,7 +87,8 @@ export function Navbar() {
             <li key={link.key}>
               <a
                 href={link.href}
-                className="group relative text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="group relative text-sm text-muted transition-colors hover:text-text"
               >
                 {t.nav[link.key]}
                 <span
@@ -85,7 +105,8 @@ export function Navbar() {
           <LanguageToggle />
           <a
             href="#contact"
-            className="hidden rounded-full px-4 py-2 text-sm font-semibold text-[#0a0c16] transition-transform hover:scale-[1.03] sm:block"
+            onClick={(e) => handleNavClick(e, "#contact")}
+            className="hidden rounded-full px-4 py-2 text-sm font-semibold text-ink transition-transform hover:scale-[1.03] sm:block"
             style={{ background: "var(--gradient-flow)" }}
           >
             {t.nav.cta}
@@ -111,7 +132,10 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: reduced ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: reduced ? 0 : 0.3,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             className="overflow-hidden border-t md:hidden"
             style={{
               borderColor: "var(--border-subtle)",
@@ -124,8 +148,8 @@ export function Navbar() {
                 <li key={link.key}>
                   <a
                     href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="block rounded-lg px-3 py-3 text-base text-[var(--color-muted)] transition-colors hover:bg-[var(--color-panel)] hover:text-[var(--color-text)]"
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className="block rounded-lg px-3 py-3 text-base text-muted transition-colors hover:bg-panel hover:text-text"
                   >
                     {t.nav[link.key]}
                   </a>
@@ -134,8 +158,8 @@ export function Navbar() {
               <li className="mt-2">
                 <a
                   href="#contact"
-                  onClick={() => setMenuOpen(false)}
-                  className="block rounded-full px-4 py-3 text-center text-base font-semibold text-[#0a0c16]"
+                  onClick={(e) => handleNavClick(e, "#contact")}
+                  className="block rounded-full px-4 py-3 text-center text-base font-semibold text-ink"
                   style={{ background: "var(--gradient-flow)" }}
                 >
                   {t.nav.cta}
@@ -155,7 +179,10 @@ function MenuIcon({ open }: { open: boolean }) {
     <div className="relative h-4 w-5">
       <span
         className="absolute left-0 h-0.5 w-full rounded-full bg-current transition-all duration-300"
-        style={{ top: open ? "50%" : "2px", transform: open ? "rotate(45deg)" : "none" }}
+        style={{
+          top: open ? "50%" : "2px",
+          transform: open ? "rotate(45deg)" : "none",
+        }}
       />
       <span
         className="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 rounded-full bg-current transition-opacity duration-300"
@@ -163,7 +190,10 @@ function MenuIcon({ open }: { open: boolean }) {
       />
       <span
         className="absolute left-0 h-0.5 w-full rounded-full bg-current transition-all duration-300"
-        style={{ bottom: open ? "50%" : "2px", transform: open ? "rotate(-45deg)" : "none" }}
+        style={{
+          bottom: open ? "50%" : "2px",
+          transform: open ? "rotate(-45deg)" : "none",
+        }}
       />
     </div>
   );
