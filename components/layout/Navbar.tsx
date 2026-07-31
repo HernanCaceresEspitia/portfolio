@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useT } from "@/components/providers/LanguageProvider";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
@@ -13,36 +13,27 @@ const LINKS = [
   { key: "contact", href: "#contact" },
 ] as const;
 
+/** Altura aproximada del navbar fijo, para no tapar la sección al llegar. */
+const HEADER_OFFSET = 72;
+
 export function Navbar() {
   const t = useT();
   const reduced = useReducedMotion();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Guarda el destino pendiente mientras el menú móvil termina de cerrarse.
-  const pendingHref = useRef<string | null>(null);
-
-  const scrollToSection = (href: string) => {
-    const el = document.querySelector(href);
-    if (el) {
-      el.scrollIntoView({
-        behavior: reduced ? "auto" : "smooth",
-        block: "start",
-      });
-      history.replaceState(null, "", href);
-    }
-  };
-
-  // Navegación por código. Si el menú móvil está abierto, primero lo cerramos
-  // y desplazamos SOLO cuando la animación de cierre termina (onExitComplete);
-  // así el DOM ya no muta mientras el navegador se desplaza (clave en móvil).
+  // Navegación por código. Como el menú ahora se anima solo con opacidad
+  // (sin cambiar la altura), no hay reflow que cancele el desplazamiento:
+  // cerramos el menú y desplazamos de inmediato con window.scrollTo.
   const handleNavClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    if (menuOpen) {
-      pendingHref.current = href;
-      setMenuOpen(false);
-    } else {
-      scrollToSection(href);
+    setMenuOpen(false);
+    const el = document.querySelector(href);
+    if (el) {
+      const top =
+        el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
+      window.scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
+      history.replaceState(null, "", href);
     }
   };
 
@@ -137,28 +128,21 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Menú móvil desplegable */}
-      <AnimatePresence
-        onExitComplete={() => {
-          if (pendingHref.current) {
-            scrollToSection(pendingHref.current);
-            pendingHref.current = null;
-          }
-        }}
-      >
+      {/* Menú móvil: flotante (absolute), animado solo con opacidad. Sin reflow. */}
+      <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{
-              duration: reduced ? 0 : 0.3,
+              duration: reduced ? 0 : 0.2,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="overflow-hidden border-t md:hidden"
+            className="absolute inset-x-0 top-full border-t md:hidden"
             style={{
               borderColor: "var(--border-subtle)",
-              backgroundColor: "rgba(10,12,22,0.92)",
+              backgroundColor: "rgba(10,12,22,0.96)",
               backdropFilter: "blur(12px)",
             }}
           >
