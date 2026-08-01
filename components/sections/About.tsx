@@ -60,7 +60,7 @@ export function About() {
                 className="relative ml-1 border-l"
                 style={{ borderColor: "var(--border-strong)" }}
               >
-                {t.about.timeline.map((item, i) => (
+                {[...t.about.timeline].reverse().map((item, i) => (
                   <li key={i} className="relative pb-8 pl-6 last:pb-0">
                     <span
                       className="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full"

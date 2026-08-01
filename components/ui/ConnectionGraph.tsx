@@ -1,6 +1,8 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { SiReact, SiShopify, SiNestjs, SiPostgresql } from "react-icons/si";
+import type { IconType } from "react-icons";
 
 /**
  * Grafo de conexión: nodos de tecnologías conectados a un hub central (HC).
@@ -12,11 +14,46 @@ import { motion, useReducedMotion } from "motion/react";
 
 const CENTER = { x: 50, y: 50 };
 
-const NODES = [
-  { id: "react", label: "React", x: 15, y: 18, color: "#22d3ee" },
-  { id: "shopify", label: "Shopify", x: 85, y: 18, color: "#8b5cf6" },
-  { id: "nestjs", label: "NestJS", x: 15, y: 82, color: "#3b82f6" },
-  { id: "postgres", label: "Postgres", x: 85, y: 82, color: "#ec4899" },
+const NODES: {
+  id: string;
+  label: string;
+  Icon: IconType;
+  x: number;
+  y: number;
+  color: string;
+}[] = [
+  {
+    id: "react",
+    label: "React",
+    Icon: SiReact,
+    x: 15,
+    y: 18,
+    color: "#22d3ee",
+  },
+  {
+    id: "shopify",
+    label: "Shopify",
+    Icon: SiShopify,
+    x: 85,
+    y: 18,
+    color: "#8b5cf6",
+  },
+  {
+    id: "nestjs",
+    label: "NestJS",
+    Icon: SiNestjs,
+    x: 15,
+    y: 82,
+    color: "#3b82f6",
+  },
+  {
+    id: "postgres",
+    label: "Postgres",
+    Icon: SiPostgresql,
+    x: 85,
+    y: 82,
+    color: "#ec4899",
+  },
 ];
 
 export function ConnectionGraph() {
@@ -73,34 +110,25 @@ export function ConnectionGraph() {
           ))}
       </svg>
 
-      {/* Nodos de tecnología */}
-      {NODES.map((node) => (
-        <div
-          key={node.id}
-          className="absolute flex items-center gap-1.5 rounded-full border px-2.5 py-1"
-          style={{
-            left: `${node.x}%`,
-            top: `${node.y}%`,
-            transform: "translate(-50%, -50%)",
-            background: "var(--color-panel)",
-            borderColor: "var(--border-strong)",
-          }}
-        >
-          <span
-            className="h-1.5 w-1.5 rounded-full"
-            style={{ background: node.color }}
-          />
-          <span
-            className="text-xs"
+      {/* Nodos de tecnología (iconos) */}
+      {NODES.map((node) => {
+        const Icon = node.Icon;
+        return (
+          <div
+            key={node.id}
+            className="absolute grid h-11 w-11 place-items-center rounded-xl border"
             style={{
-              fontFamily: "var(--font-mono)",
-              color: "var(--color-text)",
+              left: `${node.x}%`,
+              top: `${node.y}%`,
+              transform: "translate(-50%, -50%)",
+              background: "var(--color-panel)",
+              borderColor: "var(--border-strong)",
             }}
           >
-            {node.label}
-          </span>
-        </div>
-      ))}
+            <Icon size={22} color={node.color} title={node.label} />
+          </div>
+        );
+      })}
 
       {/* Hub central */}
       <div
